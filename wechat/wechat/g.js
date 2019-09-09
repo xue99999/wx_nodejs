@@ -1,8 +1,11 @@
-const sha1 = require('sha1')
+const sha1 = require('sha1')    
+var Wechat = require('./wechat')
+
 
 module.exports = function (opts) {
+    var wechat = new Wechat(opts)
+
     return function * (next) {
-        console.log(this.query)
         const token = opts.token
         const signature = this.query.signature
         const timestamp = this.query.timestamp
