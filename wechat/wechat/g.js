@@ -5,8 +5,8 @@ var util = require('./util')
 var Wechat = require('./wechat')
 
 
-module.exports = function (opts) {
-    // var wechat = new Wechat(opts)
+module.exports = function (opts, handle) {
+    var wechat = new Wechat(opts)
 
     return function * (next) {
         var that = this
@@ -46,26 +46,11 @@ module.exports = function (opts) {
             console.log('---message---')
             console.log(message)
 
+            this.weixin = message
 
-            if (message.MsgType === 'event') {
-                if (message.Event === 'subscribe') {
-                    var now = new Date().getTime()
+            yield handle.call(this, next)
 
-                    // 注意，这里必须用外面的that, 否则消息无法送达公众号
-                    that.status = 200
-                    that.type = 'application/xml'
-                    that.body = '<xml>' + 
-                    '<ToUserName><![CDATA[' + message.FromUserName + ']]></ToUserName>' +
-                    '<FromUserName><![CDATA[' + message.ToUserName + ']]></FromUserName>' +
-                    '<CreateTime>' + now + '</CreateTime>' +
-                    '<MsgType><![CDATA[text]]></MsgType>' +
-                    '<Content><![CDATA[Hi, 欢迎关注我的公众号!]]></Content>' +
-                    '</xml>'
-
-                    return
-                }
-            }
-
+            wechat.reply.call(this)
         }
     }
 }

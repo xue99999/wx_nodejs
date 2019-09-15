@@ -1,7 +1,8 @@
 var xml2js = require('xml2js')
 var Promise = require('bluebird')
+var tpl = require('./tpl')
 
-var parser = new xml2js.Parser();
+var parser = new xml2js.Parser()
 
 exports.parseXMLAsync = function (data) {
     return new Promise(function (resolve, reject) {
@@ -49,3 +50,24 @@ function formatMessage(data) {
 }
 
 exports.formatMessage = formatMessage
+
+exports.tpl = function(content, message) {
+    var info = {}
+    var type = 'text'
+    var toUserName = message.ToUserName
+    var fromUserName = message.FromUserName
+
+    // 数组格式，属于图文消息
+    if (Array.isArray(content)) {
+        type = 'news'
+    }
+
+    type = content.type || type
+    info.content = content
+    info.toUserName = fromUserName
+    info.fromUserName = toUserName
+    info.createTime = new Date().getTime()
+    info.msgType = type
+
+    return tpl.compile(info)
+}
